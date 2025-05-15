@@ -1,0 +1,18 @@
+import express from 'express'
+import dotenv from 'dotenv'
+import authRoutes from './routes/auth.route.js'
+import connectDB from './lib/db.js'
+
+dotenv.config()
+
+const app = express()
+const PORT = process.env.PORT || 3000
+
+app.use(express.json()) // To parse Json req bodies
+
+app.use('/api/v1/auth', authRoutes)
+
+app.listen(PORT, async() =>{
+    await connectDB()
+    console.log(`Server Listening on Port ${PORT}....`)
+})
