@@ -1,7 +1,7 @@
 import { hash, genSalt, compare } from "bcryptjs"
 import jwt from 'jsonwebtoken'
 import User from "../models/user.model.js"
-import { loginSchema, userInputSchema } from "./auth.schema.js"
+import { loginSchema, userInputSchema } from "../dto/auth.schema.js"
 import { ZodError } from "zod"
 import { sendWelcomeEmail } from "../emails/emailHandlers.js"
 
@@ -18,10 +18,6 @@ export const signup = async(req, res) =>{
         if(existUsername){
             return res.status(400).json({message: "Username already exists"})
         }
-        
-        if (password.length < 6){
-            return res.status(400).json({message: "Password must be at least 6 characters"})
-        }  
 
         const salt  = await genSalt(10)
         const hashedPassword = await hash(password, salt)
@@ -65,7 +61,7 @@ export const signup = async(req, res) =>{
         });
     }
 
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: error.message });
 }
 } 
 
@@ -102,4 +98,13 @@ export const login = async(req, res) =>{
 export const logout = (req, res) =>{
     res.clearCookie("jwt-linkedin")
     res.json({message: 'Logged out successfully'})
+}
+
+export const getCurrentUser = async(req, res) =>{
+    try {
+        const user = req.user
+        res.json(user)
+    } catch (error) {
+        res.status(500).json({message: 'Server Error'})
+    }
 }
