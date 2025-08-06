@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import React from 'react'
-import { axiosInstance } from '../../../lib/axios'
+import { axiosInstance } from '../../lib/axios'
 import toast from 'react-hot-toast'
 import { useForm } from 'react-hook-form'
 import { Loader } from 'lucide-react'

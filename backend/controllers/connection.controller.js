@@ -187,7 +187,7 @@ export const getConnectionStatus = async (req, res) => {
     const currentUser = req.user;
 
     if (currentUser.connections.includes(userId)) {
-      res.json({ status: "connected" });
+      return res.json({ status: "connected" });
     }
     const pendingRequest = await ConnectionRequest.findOne({
       $or: [
@@ -201,11 +201,11 @@ export const getConnectionStatus = async (req, res) => {
       if (pendingRequest.sender.toString() === currentUserId.toString()) {
         return res.json({ status: "pending" });
       } else {
-        res.json({ status: "received", requestId: pendingRequest._id });
+        return res.json({ status: "received", requestId: pendingRequest._id });
       }
-      // if no connection or not pending
-      res.json({ status: "not_connected" });
     }
+    // if no connection or not pending
+      res.json({ status: "not_connected" });
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });
   }
