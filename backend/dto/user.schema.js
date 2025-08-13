@@ -8,7 +8,7 @@ export const updateProfileSchema = z.object({
     location: z.string().optional(),
     profilePicture: z.string().optional(),
     bannerImg: z.string().optional(),
-    skills: z.string().optional(),
-    experience: z.string().optional(),
-    education: z.string().optional()
+    skills: z.array().optional(),
+    experience: z.array().optional(),
+    education: z.array().optional()
 })

@@ -1,71 +1,73 @@
-import { updateProfileSchema } from "../dto/user.schema.js"
-import cloudinary from "../lib/cloudinary.js"
-import User from "../models/user.model.js"
+import { updateProfileSchema } from "../dto/user.schema.js";
+import cloudinary from "../lib/cloudinary.js";
+import User from "../models/user.model.js";
 
-export const getSuggestedConnections = async(req, res) =>{
-    try {
-        
-        const currentUser = await User.findById(req.user._id).select("connections");
+export const getSuggestedConnections = async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.user._id).select("connections");
 
-        // find users who are not already connected and avoid our own profile
+    // find users who are not already connected and avoid our own profile
 
-        const suggestedUser = await User.find({
-            _id: {
-                $ne: req.user._id,
-                $nin: currentUser.connections
-            }
-        })
-           .select("name username profilePicture headline")
-           .limit(3);
-        
-        res.json(suggestedUser)
-    } catch (error) {
-        console.log("Error in getSuggestedConnections controller:", error);
-        res.status(500).json({message: "Server Error"})
+    const suggestedUser = await User.find({
+      _id: {
+        $ne: req.user._id,
+        $nin: currentUser.connections,
+      },
+    })
+      .select("name username profilePicture headline")
+      .limit(3);
+
+    res.json(suggestedUser);
+  } catch (error) {
+    console.log("Error in getSuggestedConnections controller:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+export const getPublicProfile = async (req, res) => {
+  try {
+    const username = req.params.username;
+    const user = await User.findOne({ username }).select("-password");
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
     }
-}
+    res.json(user);
+  } catch (error) {
+    console.log("Error getting public profile", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
-export const getPublicProfile = async(req, res) =>{
+export const updateProfile = async (req, res) => {
+  try {
+    // const allowedFields = ['name', 'headline', 'about', 'location', 'profilePicture', 'bannerImg', 'skills', 'experience', 'education']
 
-    try {
-        const username = req.params.username
-        const user = await User.findOne({username}).select('-password')
-
-        if(!user){
-            res.status(404).json({message: 'User not found'})
-        }
-        res.json(user)
-    } catch (error) {
-        console.log("Error getting public profile", error)
-        res.status(500).json({message: 'Server error'})     
+    const updatedData = req.body;
+    const payload = updatedData;
+    // for(const field of allowedFields){
+    //     if(req.body[field]){
+    //         updatedData[field] = req.body[field]
+    //     }
+    // }
+    if (payload.profilePicture) {
+      const result = await cloudinary.uploader.upload(payload.profilePicture);
+      payload["profilePicture"] = result.secure_url;
     }
-}
 
-export const updateProfile = async (req, res) =>{
-    try {
-        // const allowedFields = ['name', 'headline', 'about', 'location', 'profilePicture', 'bannerImg', 'skills', 'experience', 'education']
-
-        const updatedData = req.body
-        const payload = updateProfileSchema.parse(updatedData)
-        // for(const field of allowedFields){
-        //     if(req.body[field]){
-        //         updatedData[field] = req.body[field]
-        //     }
-        // }
-        if(payload.profilePicture){
-            const result = await cloudinary.uploader.upload(payload.profilePicture)
-            payload[profilePicture] = result.secure_url
-        }
-
-        if(payload.bannerImg){
-            const result = await cloudinary.uploader.upload(payload.bannerImg)
-            payload[bannerImg] = result.secure_url
-        }
-        const id = req.user._id
-        const user = await User.findByIdAndUpdate(id, {$set: payload}, {new: true}).select('-password')
-        res.json(user)
-    } catch (error) {
-        console.log("Error in updating profile", error)
-        res.status(500).json({message: 'Server error'})  
+    if (payload.bannerImg) {
+      const result = await cloudinary.uploader.upload(payload.bannerImg);
+      payload["bannerImg"] = result.secure_url;
     }
-}
+    const id = req.user._id;
+    const user = await User.findByIdAndUpdate(
+      id,
+      { $set: payload },
+      { new: true }
+    ).select("-password");
+    res.json(user);
+  } catch (error) {
+    console.log("Error in updating profile", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

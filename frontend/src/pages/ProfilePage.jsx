@@ -21,7 +21,7 @@ const ProfilePage = () => {
     })
 
     const {mutate: updateProfile} = useMutation({
-        mutationFn: (updatedData) => axiosInstance.put("users/profile", updatedData),
+        mutationFn: async (updatedData) => await axiosInstance.put("users/profile", updatedData),
         onSuccess: () =>{
             toast.success("Profile updated successfully")
             queryClient.invalidateQueries({queryKey: ["authUser"]})
@@ -38,6 +38,7 @@ const ProfilePage = () => {
     const handleSave = (updatedData) =>{
         updateProfile(updatedData)
     }
+    
     return (
     <div className="max-w-4xl mx-auto p-4">
       <ProfileHeader userData={userData} isOwnProfile ={isOwnProfile} onSave ={handleSave}/>

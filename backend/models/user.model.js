@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema(
         title: String,
         company: String,
         startDate: Date,
-        enDate: Date,
+        endDate: Date,
         description: String,
       },
     ],

@@ -44,38 +44,43 @@ const NotificationsPage = () => {
 		}
 	};
 
-	const renderNotificationContent = (notification) => {
-		switch (notification.type) {
-			case "like":
-				return (
-					<span>
-						<Link to={`/profile/${notification.relatedUser.username}`}>
-							<strong>{notification.relatedUser.name}  </strong>
-						</Link> liked your post
-					</span>
-				);
-			case "comment":
-				return (
-					<span>
-						<Link to={`/profile/${notification.relatedUser.username}`} className='font-bold'>
-							{notification.relatedUser.name}
-						</Link>{" "}
-						commented on your post
-					</span>
-				);
-			case "connectionAccepted":
-				return (
-					<span>
-						<Link to={`/profile/${notification.relatedUser.username}`} className='font-bold'>
-							{notification.relatedUser.name}
-						</Link>{" "}
-						accepted your connection request
-					</span>
-				);
-			default:
-				return null;
-		}
-	};
+const renderNotificationContent = (notification) => {
+    const user = notification.relatedUser;
+    if (!user) return <span>Unknown user activity</span>;
+
+    switch (notification.type) {
+        case "like":
+            return (
+                <span>
+                    <Link to={`/profile/${user.username}`}>
+                        <strong>{user.name}</strong>
+                    </Link>{" "}
+                    liked your post
+                </span>
+            );
+        case "comment":
+            return (
+                <span>
+                    <Link to={`/profile/${user.username}`} className='font-bold'>
+                        {user.name}
+                    </Link>{" "}
+                    commented on your post
+                </span>
+            );
+        case "connectionAccepted":
+            return (
+                <span>
+                    <Link to={`/profile/${user.username}`} className='font-bold'>
+                        {user.name}
+                    </Link>{" "}
+                    accepted your connection request
+                </span>
+            );
+        default:
+            return <span>Unknown notification type</span>;
+    }
+};
+
 
 	const renderRelatedPost = (relatedPost) => {
 		if (!relatedPost) return null;
@@ -107,9 +112,9 @@ const NotificationsPage = () => {
 
 					{isLoading ? (
 						<p>Loading notifications...</p>
-					) : notifications && notifications.data.length > 0 ? (
+					) : notifications && notifications?.data?.length > 0 ? (
 						<ul>
-							{notifications.data.map((notification) => (
+							{notifications?.data?.map((notification) => (
 								<li
 									key={notification._id}
 									className={`bg-white border rounded-lg p-4 my-4 transition-all hover:shadow-md ${
@@ -118,10 +123,10 @@ const NotificationsPage = () => {
 								>
 									<div className='flex items-start justify-between'>
 										<div className='flex items-center space-x-4'>
-											<Link to={`/profile/${notification.relatedUser.username}`}>
+											<Link to={`/profile/${notification.relatedUser?.username}`}>
 												<img
-													src={notification.relatedUser.profilePicture || "/avatar.png"}
-													alt={notification.relatedUser.name}
+													src={notification.relatedUser?.profilePicture || "/avatar.png"}
+													alt={notification.relatedUser?.name}
 													className='w-12 h-12 rounded-full object-cover'
 												/>
 											</Link>
