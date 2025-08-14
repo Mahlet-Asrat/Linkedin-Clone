@@ -52,8 +52,8 @@ function App() {
   return (
     <Layout>
       <Routes>
-        <Route path='/' element={!authUser ? <Navigate to="/login" replace /> : <HomePage />} />
-        <Route path='/signup' element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
+        <Route path='/' element={!authUser ? <Navigate to="/signup" replace /> : <HomePage />} />
+        <Route path='/signup' element={ <SignUpPage /> } />
         <Route path='/login' element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
         <Route path='/notifications' element={authUser ? <NotificationPage /> : <Navigate to={"/login"} />} />
         <Route path='/network' element={authUser ? <NetworkPage /> : <Navigate to={"/login"} />} />
