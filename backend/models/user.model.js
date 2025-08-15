@@ -2,10 +2,11 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
+    googleId: {type: String, default: null},
     name: { type: String, required: true },
-    username: { type: String, required: true, unique: true },
+    username: { type: String, required: false, unique: true, sparse: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true, unique: true },
+    password: { type: String, required: false, unique: false },
     profilePicture: { type: String, default: "" },
     bannerImg: { type: String, default: "" },
     headline: { type: String, default: "Linkedin User" },

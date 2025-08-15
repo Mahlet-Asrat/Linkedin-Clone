@@ -1,17 +1,30 @@
-import { Link, Navigate, redirect, Route, Routes } from 'react-router-dom'
+import { Link, Navigate, redirect, Route, Routes, useSearchParams } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import SignUpPage from './pages/auth/SignUpPage'
 import LoginPage from './pages/auth/LoginPage'
 import HomePage from './pages/HomePage'
 import toast, { Toaster } from 'react-hot-toast'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { axiosInstance } from './lib/axios'
 import NotificationPage from './pages/NotificationPage'
 import NetworkPage from './pages/NetworkPage'
 import PostPage from './pages/PostPage'
 import ProfilePage from './pages/ProfilePage'
+import { useEffect } from 'react'
 
 function App() {
+  const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
+
+  // Handle Google OAuth success
+  useEffect(() => {
+    const authStatus = searchParams.get('auth');
+    if (authStatus === 'success') {
+      toast.success('Successfully signed in with Google!');
+      // Invalidate queries to refetch user data
+      queryClient.invalidateQueries({ queryKey: ['authUser'] });
+    }
+  }, [searchParams, queryClient]);
 
   const { data: authUser, isLoading, error, isError } = useQuery({
     queryKey: ['authUser'],
@@ -53,7 +66,7 @@ function App() {
     <Layout>
       <Routes>
         <Route path='/' element={!authUser ? <Navigate to="/signup" replace /> : <HomePage />} />
-        <Route path='/signup' element={ <SignUpPage /> } />
+        <Route path='/signup' element={<SignUpPage />} />
         <Route path='/login' element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
         <Route path='/notifications' element={authUser ? <NotificationPage /> : <Navigate to={"/login"} />} />
         <Route path='/network' element={authUser ? <NetworkPage /> : <Navigate to={"/login"} />} />

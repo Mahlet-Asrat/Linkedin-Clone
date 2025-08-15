@@ -24,6 +24,10 @@ const LoginForm = () => {
         }
     })
 
+    const handleGoogleSignIn = () => {
+        window.location.href = "http://localhost:4000/api/v1/auth/google";
+    };
+
     const onSubmit = (data) =>{
         loginMutation(data)
     }
@@ -59,6 +63,24 @@ const LoginForm = () => {
             {isLogingIn ? <Loader className='size-5 animate-spin'/> : "Login"}
         </button>
       </form>
+      <div className="flex items-center gap-2 my-2">
+        <hr className="flex-grow border-gray-300" />
+        <span className="text-gray-500 text-sm">OR</span>
+        <hr className="flex-grow border-gray-300" />
+      </div>
+
+      {/* Google Sign-In Button */}
+      <button
+        onClick={handleGoogleSignIn}
+        className="btn btn-outline w-full flex items-center justify-center gap-2"
+      >
+        <img
+          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+          alt="Google"
+          className="w-5 h-5"
+        />
+        Continue with Google
+      </button>
     </div>
   )
 }

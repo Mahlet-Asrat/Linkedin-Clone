@@ -3,13 +3,15 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.route.js";
 import connectDB from "./lib/db.js";
 import cookieParser from "cookie-parser";
-import path from 'path'
-import { fileURLToPath } from 'url'
+import path from "path";
+import { fileURLToPath } from "url";
 import { userRoutes } from "./routes/user.route.js";
 import { postRoutes } from "./routes/post.route.js";
 import { notificationRoutes } from "./routes/notification.route.js";
 import connectionRoutes from "./routes/connection.route.js";
 import cors from "cors";
+import passport from "passport";
+import session from "express-session";
 dotenv.config();
 
 const app = express();
@@ -22,9 +24,10 @@ const __dirname = path.dirname(__filename);
 // CORS configuration for all environments
 app.use(
   cors({
-    origin: process.env.NODE_ENV === "production" 
-      ? false // No CORS needed when serving from same origin
-      : "http://localhost:5173",
+    origin:
+      process.env.NODE_ENV === "production"
+        ? false // No CORS needed when serving from same origin
+        : "http://localhost:5173",
     credentials: true,
   })
 );
@@ -33,14 +36,28 @@ app.use(
 app.use(express.json({ limit: "5mb" })); // To parse Json req bodies
 app.use(cookieParser()); // get cookies from req
 
+// Session middleware (must come before passport)
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 // API routes - these must come BEFORE the static file serving
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/posts", postRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/connections", connectionRoutes);
-
-
 
 // Serve static files from frontend dist folder
 app.use(express.static(path.join(__dirname, "..", "frontend", "dist")));
