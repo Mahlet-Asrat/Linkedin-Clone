@@ -11,7 +11,6 @@ import { notificationRoutes } from "./routes/notification.route.js";
 import connectionRoutes from "./routes/connection.route.js";
 import cors from "cors";
 import passport from "passport";
-import session from "express-session";
 dotenv.config();
 
 const app = express();
@@ -36,22 +35,9 @@ app.use(
 app.use(express.json({ limit: "5mb" })); // To parse Json req bodies
 app.use(cookieParser()); // get cookies from req
 
-// Session middleware (must come before passport)
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "your-secret-key",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
-  })
-);
-
+// Initialize passport (no session needed)
 app.use(passport.initialize());
-app.use(passport.session());
+
 // API routes - these must come BEFORE the static file serving
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);

@@ -19,19 +19,14 @@ router.post("/signup", signup);
 router.post("/login", login);
 router.post("/logout", logout);
 router.get("/my-profile", authMiddleware, getCurrentUser);
-router.get("/google/status", (req, res) => {
-  if (req.isAuthenticated()) {
-    res.json({
-      authenticated: true,
-      user: req.user,
-      message: "User is authenticated via Google OAuth",
-    });
-  } else {
-    res.json({
-      authenticated: false,
-      message: "User is not authenticated",
-    });
-  }
+
+// Updated to use JWT verification instead of sessions
+router.get("/google/status", authMiddleware, (req, res) => {
+  res.json({
+    authenticated: true,
+    user: req.user,
+    message: "User is authenticated via JWT",
+  });
 });
 
 passport.use(
@@ -82,24 +77,21 @@ passport.use(
   )
 );
 
-passport.serializeUser((user, done) => {
-  done(null, user._id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id);
-  done(null, user);
-});
+// Remove serializeUser and deserializeUser - not needed for stateless JWT
 
 router.get(
   "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", { 
+    scope: ["profile", "email"],
+    session: false 
+  })
 );
 
 router.get(
   "/google/callback",
   passport.authenticate("google", {
     failureRedirect: "http://localhost:4000/login",
+    session: false
   }),
   async (req, res) => {
     try {
